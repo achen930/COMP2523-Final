@@ -1,5 +1,7 @@
 import { Map } from "./Map";
 import { ReportMaker } from "./Report";
+import { SimpleReport } from "./SimpleReport";
+import { ComplexReport } from "./ComplexReport";
 
 async function main() {
     const map = await Map.read("data.json");
