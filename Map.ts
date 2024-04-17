@@ -112,6 +112,7 @@ export class Map {
                     inhabitants.forEach(inhabitant => {
                         if (!inhabitant.isVaccinated && inhabitant.age >= currentIntake) {
                             closestClinic.queue.enqueue(inhabitant);
+                            inhabitant.isVaccinated = true;
                         }
                     })
                 });

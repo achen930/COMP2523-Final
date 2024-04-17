@@ -16,6 +16,8 @@ async function main() {
     const report2 = new ReportMaker(complexReport);
     report2.printDetails();
     console.log("---End of Report---");
+    map.printMap();
+    console.log("---End of Map---");
   }
   
   main();
