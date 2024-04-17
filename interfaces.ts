@@ -3,11 +3,13 @@ export interface Inhabitant {
     fullName: string;
     isVaccinated: boolean;
     age: number;
+    [key: string]: any;
 }
 
 export interface Household {
     blockNum: number;
     inhabitants: Inhabitant[];
+    [key: string]: any;
 }
 
 export interface Clinic {
@@ -45,6 +47,7 @@ export class Queue {
 export interface City {
     households: Household[];
     clinics: Clinic[];
+    [key: string]: any;
 }
 
 export interface CityMapData {

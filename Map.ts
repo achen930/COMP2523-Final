@@ -1,6 +1,5 @@
 import { readFile } from "fs/promises";
-import { EOL } from "os";
-import { Inhabitant, Household, Clinic, City, CityMapData, Queue } from "./interfaces";
+import { Household, Clinic, CityMapData } from "./interfaces";
 
 export class Map {
 	private _mapData: CityMapData;
@@ -26,38 +25,66 @@ export class Map {
     }
 
     public async printMap(): Promise<void> {
-        const cityMapData = this.mapData;
-        const maxLength = Object.values(cityMapData).reduce((max, city) => Math.max(max, city.households.length), 0);
-        const map: string[][] = [];
+        const cityMapData: CityMapData = this.mapData;
         
-            for (let i = 0; i < maxLength; i++) {
-                map.push(new Array(3).fill("x"));
+        const cities = cityMapData.city;
+        let maxTotalLength = 0;
+        
+        for (const cityName in cities) {
+
+            if (cities.hasOwnProperty(cityName)) {
+            let cityData = cities[cityName];
+
+            const households: Household[] = cityData.households;
+
+            let letter = "";
+            const letterArray: string[] = [];
+
+            households.forEach(household => {
+
+                let letter = "F";
+
+                const inhabitants = household.inhabitants;
+                
+                for (const inhabitant of inhabitants) {
+                    if (!inhabitant.isVaccinated) {
+                        letter = "H";
+                        break;
+                    }
+                }
+
+                letterArray.push(letter);
+                
+            })
+            
+            const clinics: Clinic[] = cityData.clinics;
+            
+            clinics.forEach(clinic => {
+                letter = "C";
+                letterArray.push(letter);
+            })
+            
+            
+            if (letterArray.length > maxTotalLength) {
+                maxTotalLength = letterArray.length;
             }
-        
-            for (const cityName in cityMapData) {
-                if (cityMapData.hasOwnProperty(cityName)) {
-                    const cityData = cityMapData[cityName];
-                    const households = cityData.households;
-                    const clinics = cityData.clinics;
             
-                    households.forEach(household => {
-                        const column = cityName.charCodeAt(0) - 66;
-                        const row = household.blockNum;
-                        map[row][column] = household.inhabitants.some(inhabitant => !inhabitant.isVaccinated) ? 'H' : 'F';
-                    });
+            const remainingLength = maxTotalLength - letterArray.length;
             
-                    clinics.forEach(clinic => {
-                        const column = cityName.charCodeAt(0) - 66;
-                        const row = clinic.blockNum;
-                        map[row][column] = 'C';
-                    });
+            if (remainingLength > 0) {
+                for (let i = 0; i < remainingLength; i++) {
+                    letterArray.push("x");
                 }
             }
-            
-            for (const row of map) {
-                console.log(row.join(", "));
-            }
+
+            const map = letterArray.join();
+
+            console.log(map)
+
+        }
+
     }
+}
         
 
             
@@ -83,7 +110,7 @@ export class Map {
                             return;
                         }
 
-                        clinics.enqueue(inhabitant);
+                        // clinics.enqueue(inhabitant);
                     })
                 });
             }
