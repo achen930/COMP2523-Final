@@ -1,5 +1,5 @@
 import { readFile } from "fs/promises";
-import { Household, Clinic, CityMapData } from "./interfaces";
+import { Household, Clinic, CityMapData, Queue, Inhabitant } from "./interfaces";
 
 export class Map {
 	private _mapData: CityMapData;
@@ -41,9 +41,7 @@ export class Map {
             const letterArray: string[] = [];
 
             households.forEach(household => {
-
                 let letter = "F";
-
                 const inhabitants = household.inhabitants;
                 
                 for (const inhabitant of inhabitants) {
@@ -52,9 +50,7 @@ export class Map {
                         break;
                     }
                 }
-
                 letterArray.push(letter);
-                
             })
             
             const clinics: Clinic[] = cityData.clinics;
@@ -63,7 +59,6 @@ export class Map {
                 letter = "C";
                 letterArray.push(letter);
             })
-            
             
             if (letterArray.length > maxTotalLength) {
                 maxTotalLength = letterArray.length;
@@ -78,40 +73,49 @@ export class Map {
             }
 
             const map = letterArray.join();
-
-            console.log(map)
-
+            console.log(map);
         }
-
     }
 }
-        
 
-            
-
-    registerForShots(){
+    registerForShots() {
 
         const currentIntake = 20;
+        const cityMapData: CityMapData = this.mapData;
+        const cities = cityMapData.city;
 
-        const cityMapData = this.mapData;
-        for (const cityName in cityMapData) {
-            if (cityMapData.hasOwnProperty(cityName)) {
-                const cityData = cityMapData[cityName];
-                const households = cityData.households;
-                const clinics = cityData.clinics;
-        
+
+        for (const cityName in cities) {
+            if ((cities.hasOwnProperty(cityName))) {
+                let cityData = cities[cityName];
+                const households: Household[] = cityData.households;
+                const clinics: Clinic[] = cityData.clinics;
+
                 households.forEach(household => {
-                    household.inhabitants.forEach(inhabitant => {
-                        if (inhabitant.isVaccinated === true) {
-                            return;
-                        }
+                    let closestClinicBlock: number = clinics[0].blockNum;
+                    let closestClinic: Clinic  = clinics[0];
 
-                        if (inhabitant.age < currentIntake) {
-                            return;
+                    for (const clinic of clinics){
+                        const clinicBlockDistance = clinic.blockNum - household.blockNum;
+                        if (Math.abs(clinicBlockDistance) < Math.abs(closestClinicBlock)) {
+                            closestClinicBlock = clinicBlockDistance;
+                            closestClinic = clinic;
                         }
+                    }
 
-                        // clinics.enqueue(inhabitant);
+                    if (!closestClinic.queue) {
+                        closestClinic.queue = new Queue(20);
+                    }
+
+                    const inhabitants = household.inhabitants;
+                    let clinicQueue: Inhabitant[] = [];
+                    inhabitants.forEach(inhabitant => {
+                        if (!inhabitant.isVaccinated && inhabitant.age >= currentIntake) {
+                            clinicQueue.push(inhabitant);
+                        }
                     })
+                    closestClinic.queue.enqueue(clinicQueue)
+                    closestClinic.queue.getCurrentWaitTime(closestClinic);
                 });
             }
         }
