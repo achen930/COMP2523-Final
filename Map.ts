@@ -1,5 +1,6 @@
 import { readFile } from "fs/promises";
-import { Household, Clinic, CityMapData, Queue, Inhabitant } from "./interfaces";
+import { Household, CityMapData } from "./interfaces";
+import { Clinic, Queue } from "./Clinic";
 
 export class Map {
 	private _mapData: CityMapData;
@@ -108,14 +109,11 @@ export class Map {
                     }
 
                     const inhabitants = household.inhabitants;
-                    let clinicQueue: Inhabitant[] = [];
                     inhabitants.forEach(inhabitant => {
                         if (!inhabitant.isVaccinated && inhabitant.age >= currentIntake) {
-                            clinicQueue.push(inhabitant);
+                            closestClinic.queue.enqueue(inhabitant);
                         }
                     })
-                    closestClinic.queue.enqueue(clinicQueue)
-                    closestClinic.queue.getCurrentWaitTime(closestClinic);
                 });
             }
         }

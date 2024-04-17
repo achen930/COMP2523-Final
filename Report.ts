@@ -1,10 +1,14 @@
 import { IReport } from "./IReport";
 
 export class ReportMaker {
-    report: IReport;
+    private _report: IReport;
+
+    constructor(report: IReport) {
+        this._report = report;
+    }
 
     printDetails() {
-        this.report.printDetails();
+        this._report.printDetails();
     }
 
 }
